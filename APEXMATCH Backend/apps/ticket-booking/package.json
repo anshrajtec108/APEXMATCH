@@ -7,7 +7,8 @@
   },
   "type": "module",
   "scripts": {
-    "start": "node src/server.js",
+    "start": "node src/index.js",
+    "test": "node --test",
     "test:concurrency": "node scripts/concurrencyTest.mjs"
   },
   "keywords": [],
@@ -15,11 +16,15 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "bcryptjs": "^3.0.3",
     "body-parser": "^2.3.0",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "express-rate-limit": "^8.7.1",
+    "helmet": "^8.3.0",
     "ioredis": "^6.0.0",
+    "jsonwebtoken": "^9.0.3",
     "pg": "^8.13.1"
   }
 }

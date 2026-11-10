@@ -15,7 +15,8 @@ const schemaFiles = [
   "seats.sql",
   "bookings.sql",
   "wallets.sql",
-  "wallet_transactions.sql"
+  "wallet_transactions.sql",
+  "audit_logs.sql"
 ];
 
 export async function initializeDatabase(pool) {
@@ -28,8 +29,10 @@ export async function initializeDatabase(pool) {
       await client.query(sql);
     }
     await client.query("COMMIT");
-    await seedDemoData(pool);
-    console.log("PostgreSQL schema and demo data are ready");
+    if (process.env.NODE_ENV !== "production") {
+      await seedDemoData(pool);
+    }
+    console.log("PostgreSQL schema is ready");
   } catch (error) {
     await client.query("ROLLBACK");
     throw error;

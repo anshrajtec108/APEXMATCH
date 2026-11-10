@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 import pg from "pg";
+import { signAccessToken } from "../src/services/authService.js";
 
 dotenv.config();
 
@@ -14,6 +15,7 @@ const pool = new Pool({
 
 const apiUrl = `http://127.0.0.1:${process.env.PORT || 3000}/bookings`;
 const client = await pool.connect();
+let eventId;
 
 try {
   const event = await client.query(
@@ -22,7 +24,7 @@ try {
      RETURNING id`,
     [`Concurrency Test ${Date.now()}`]
   );
-  const eventId = event.rows[0].id;
+  eventId = event.rows[0].id;
 
   await client.query(
     `INSERT INTO seats (event_id, seat_number, price, status)
@@ -39,9 +41,11 @@ try {
     Array.from({ length: 100 }, (_, index) =>
       fetch(apiUrl, {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: {
+          "content-type": "application/json",
+          authorization: `Bearer ${signAccessToken({ id: users.rows[index].id, role: "user" })}`
+        },
         body: JSON.stringify({
-          userId: users.rows[index].id,
           eventId,
           seatNumber: "A001"
         })
@@ -66,6 +70,19 @@ try {
 
   console.log("Concurrency proof passed");
 } finally {
-  client.release();
-  await pool.end();
+  try {
+    if (eventId !== undefined) {
+      await client.query("BEGIN");
+      await client.query("DELETE FROM bookings WHERE event_id = $1", [eventId]);
+      await client.query("DELETE FROM seats WHERE event_id = $1", [eventId]);
+      await client.query("DELETE FROM events WHERE id = $1", [eventId]);
+      await client.query("COMMIT");
+    }
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+    await pool.end();
+  }
 }

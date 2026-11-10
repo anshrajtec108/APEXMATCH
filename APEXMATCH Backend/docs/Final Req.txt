@@ -1,0 +1,85 @@
+ — Project Completion Roadmap
+Goal: Finish Option A — Flash Ticket Booking — before starting any LLM/RAG project.
+
+Stack: Node.js, Express, MySQL, Redis, RabbitMQ, MongoDB, Docker, and load testing.
+Project phases and requirements
+Phase 1 — Database transactions and concurrency
+Completed
+- MySQL transactions and SELECT ... FOR UPDATE
+- Same-seat concurrency test: 100 requests, 1 success, 99 rejected
+- Prevent double booking
+
+
+
+Phase 2 — Redis and idempotency
+Current phase
+- Redis connection using ioredis
+- Idempotency keys and TTL
+- Handle duplicate and concurrent requests
+- Verify that retries don't create duplicate orders
+- Test failure cases and confirm final database state
+
+
+
+Phase 3 — Redis sorted sets and matching-engine foundation
+- Redis ZSET operations and ranking
+- Reservation priority or queue handling
+- Define matching-engine logic and its invariants
+- Test ordering and concurrent requests
+
+
+
+Phase 4 — RabbitMQ and asynchronous workers
+- Publish booking/order events
+- Consume events with background workers
+- Handle acknowledgements, retries and failures
+- Persist appropriate records in MySQL and MongoDB
+- Prevent duplicate event processing
+
+
+
+Phase 5 — API completion and WebSockets
+- Complete booking and order APIs
+- Consistent validation and error responses
+- Real-time booking status updates
+- Authentication and authorization where required
+
+
+
+Phase 6 — Docker and system integration
+- Dockerfiles and Docker Compose
+- Configure MySQL, Redis, RabbitMQ and MongoDB
+- Environment variables and health checks
+- Verify the complete system starts from a clean setup
+
+
+
+Phase 7 — Load testing and optimization
+- Use k6, Autocannon or a concurrency test script
+- Test increasing traffic and concurrent seat requests
+- Measure throughput, latency and errors
+- Investigate bottlenecks and retest after optimization
+- Work toward the planned 50,000-user / 5,000-seat scenario
+
+
+
+Phase 8 — Deployment and project documentation
+- Deploy the working application
+- Document architecture and request flow
+- Add setup instructions, API examples and test results
+- Record design decisions and known limitations
+- Prepare a project demonstration for interviews
+
+
+
+Final completion checklist
+APEXMATCH is complete when:
+- [ ] Booking correctness holds under concurrency.
+- [ ] Idempotency and retry scenarios pass.
+- [ ] Redis and RabbitMQ workflows work reliably.
+- [ ] Database records remain consistent.
+- [ ] APIs and real-time updates work as intended.
+- [ ] Docker setup works reproducibly.
+- [ ] Load-test results are measured and documented.
+- [ ] The application is deployed and the repository is documented.
+- [ ] You can explain the architecture, trade-offs, failures and debugging decisions.

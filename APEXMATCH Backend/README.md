@@ -22,16 +22,15 @@ The project currently includes four planned use cases:
 A high-demand ticket booking system where many users may try to reserve
 the same seat at the same time.
 
-The system focuses on:
+The current backend includes:
 
-- Preventing double booking
-- Handling concurrent requests
-- Request idempotency
-- Redis-based fast state management
-- MySQL transactions and row-level locking
-- Redis Sorted Sets
-- Asynchronous processing with RabbitMQ
-- Load and concurrency testing
+- PostgreSQL transactions and row-level locking for seat and wallet updates
+- User registration, bcrypt password hashes, JWT authentication, and role authorization
+- Wallet balances, ticket-price lookup, and atomic ticket purchase
+- Admin booking metrics, request audit logs, service health, and lock inspection
+- A 100-request concurrency proof (one booking succeeds; 99 requests are rejected)
+
+Redis idempotency/cache behavior and RabbitMQ-based background processing remain planned work. PostgreSQL is the current source of truth; Redis and RabbitMQ are not required for booking correctness.
 
 ### Option B — Financial / Crypto Exchange
 A matching system for buy and sell orders using an in-memory order book
@@ -61,22 +60,14 @@ request/matching path from slower persistent and asynchronous operations.
           ┌───────────┴───────────┐
           │                       │
           ▼                       ▼
-       Redis                   MySQL
-   Fast State /              Persistent
-   Idempotency                Data / Ledger
-          │
-          ▼
-    Matching Engine
-          │
-     ┌────┴─────┐
-     │          │
-     ▼          ▼
- WebSocket   RabbitMQ
-                │
-                ▼
-             Workers
-                │
-        ┌───────┴────────┐
-        ▼                ▼
-      MySQL           MongoDB
-     Ledger            Audit
+         Express API
+               │
+               ▼
+         PostgreSQL
+   bookings / wallets / audit
+               │
+        ┌─────┴─────┐
+        ▼           ▼
+  Admin APIs   Optional Redis
+  metrics and   future cache /
+  lock status   idempotency

@@ -14,13 +14,4 @@ const connectDB = new Pool({
   max: 10
 });
 
-connectDB.connect()
-  .then(client => {
-    console.log('PostgreSQL connected');
-    client.release();
-  })
-  .catch(error => {
-    console.error('PostgreSQL connection failed:', error.message);
-  });
-
 export default connectDB;
